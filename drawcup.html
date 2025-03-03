@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DrawCups</title>
+    <title>Advanced Whiteboard</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { display: flex; flex-direction: column; align-items: center; background: #222; color: white; }
@@ -17,22 +17,101 @@
         <button onclick="clearBoard()">Clear</button>
         <label>Color: <input type="color" id="colorPicker" value="#000000"></label>
         <label>Thickness: <input type="range" id="thickness" min="1" max="10" value="3"></label>
-        
+        <label>Shape: 
+            <select id="shapeSelect">
+                <option value="freehand">Freehand</option>
+                <option value="line">Line</option>
+                <option value="rectangle">Rectangle</option>
+                <option value="circle">Circle</option>
+            </select>
+        </label>
         <button onclick="downloadCanvas()">Download</button>
     </div>
     <canvas id="board"></canvas>
     <script>
         const canvas = document.getElementById("board");
         const ctx = canvas.getContext("2d");
+
         function resizeCanvas() {
             canvas.width = window.innerWidth - 20;
             canvas.height = window.innerHeight - 100;
         }
         resizeCanvas();
         window.addEventListener("resize", resizeCanvas);
+
         let drawing = false, startX = 0, startY = 0;
         let colorPicker = document.getElementById("colorPicker");
         let thicknessPicker = document.getElementById("thickness");
         let shapeSelect = document.getElementById("shapeSelect");
+
         function startDraw(e) {
             drawing = true;
+            const rect = canvas.getBoundingClientRect();
+            startX = (e.clientX || e.pageX) - rect.left;
+            startY = (e.clientY || e.pageY) - rect.top;
+            if (shapeSelect.value === "freehand") ctx.beginPath();
+        }
+
+        function stopDraw(e) {
+            if (!drawing) return;
+            drawing = false;
+            if (shapeSelect.value !== "freehand") drawShape(e);
+        }
+
+        function draw(e) {
+            if (!drawing || shapeSelect.value !== "freehand") return;
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX || e.pageX) - rect.left;
+            const y = (e.clientY || e.pageY) - rect.top;
+            ctx.lineWidth = thicknessPicker.value;
+            ctx.strokeStyle = colorPicker.value;
+            ctx.lineCap = "round";
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.moveTo(x, y);
+        }
+
+        function drawShape(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX || e.pageX) - rect.left;
+            const y = (e.clientY || e.pageY) - rect.top;
+            ctx.lineWidth = thicknessPicker.value;
+            ctx.strokeStyle = colorPicker.value;
+            ctx.beginPath();
+
+            if (shapeSelect.value === "line") {
+                ctx.moveTo(startX, startY);
+                ctx.lineTo(x, y);
+            } else if (shapeSelect.value === "rectangle") {
+                ctx.rect(startX, startY, x - startX, y - startY);
+            } else if (shapeSelect.value === "circle") {
+                let radius = Math.sqrt(Math.pow(x - startX, 2) + Math.pow(y - startY, 2));
+                ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
+            }
+
+            ctx.stroke();
+        }
+
+        function clearBoard() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function downloadCanvas() {
+            const format = prompt("Enter format (png, jpg, jpeg):").toLowerCase();
+            if (!["png", "jpg", "jpeg"].includes(format)) return alert("Invalid format!");
+
+            const link = document.createElement("a");
+            link.href = canvas.toDataURL(`image/${format}`);
+            link.download = `whiteboard.${format}`;
+            link.click();
+        }
+
+        canvas.addEventListener("mousedown", startDraw);
+        canvas.addEventListener("mouseup", stopDraw);
+        canvas.addEventListener("mousemove", draw);
+        canvas.addEventListener("touchstart", (e) => { e.preventDefault(); startDraw(e.touches[0]); });
+        canvas.addEventListener("touchend", stopDraw);
+        canvas.addEventListener("touchmove", (e) => { e.preventDefault(); draw(e.touches[0]); });
+    </script>
+</body>
+</html>
