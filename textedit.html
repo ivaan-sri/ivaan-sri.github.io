@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Editor</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
+        body { display: flex; height: 100vh; background: #121212; color: white; }
+        
+        /* Sidebar */
+        #sidebar { width: 250px; background: #222; padding: 10px; overflow-y: auto; transition: 0.3s; position: fixed; height: 100vh; left: 0; }
+        #sidebar.hidden { transform: translateX(-100%); }
+        #file-list { margin-top: 10px; }
+        .file { display: flex; justify-content: space-between; align-items: center; padding: 5px; cursor: pointer; border-bottom: 1px solid #444; }
+        .file:hover { background: #333; }
+        .file-buttons { display: flex; gap: 5px; }
+        
+        /* Editor & Preview */
+        #editor-container { flex: 1; display: flex; flex-direction: column; padding: 20px; margin-left: 250px; transition: 0.3s; }
+        #editor-container.expanded { margin-left: 0; }
+        textarea { flex: 1; background: #333; color: white; padding: 10px; border: none; resize: none; outline: none; font-size: 16px; }
+        #preview { flex: 1; padding: 10px; overflow-y: auto; background: #1a1a1a; border-left: 2px solid #333; }
+        
+        /* Buttons */
+        button { background: #444; color: white; border: none; padding: 8px; margin: 5px; cursor: pointer; border-radius: 5px; }
+        .sidebar-toggle { position: fixed; top: 10px; left: 10px; background: #444; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; z-index: 10; }
+    </style>
+</head>
+<body>
+
+    <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+
+    <div id="sidebar">
+        <h3>             Files</h3>
+        <div id="file-list"></div>
+        <button onclick="newFile()">+ New File</button>
+    </div>
+
+    <div id="editor-container">
+        <textarea id="editor" oninput="updatePreview()"></textarea>
+        <div id="preview"></div>
+        <button onclick="saveFile()">💾 Save</button>
+    </div>
+
+    <script>
+        let files = JSON.parse(localStorage.getItem('files')) || {};
+        let currentFile = null;
+        const editor = document.getElementById('editor');
+
+        function updatePreview() {
+            document.getElementById('preview').innerHTML = marked.parse(editor.value);
