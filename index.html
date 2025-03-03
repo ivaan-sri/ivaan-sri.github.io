@@ -13,22 +13,15 @@
             color: white;
             text-align: center;
             margin: 0;
+            padding-bottom: 20px;
         }
-        h1, h2 { color: #fff; }
-
-        /* Banner */
-        .banner {
-            width: 100%;
-            height: 200px;
-            background: url('banner.jpg') no-repeat center center/cover;
-        }
+        h1, h2 { color: #fff; margin-top: 20px; }
 
         /* Tab navigation */
         .nav {
             display: flex;
             justify-content: center;
             border-bottom: 2px solid #333;
-            overflow: hidden;
         }
         .tab {
             flex: 1;
@@ -36,7 +29,8 @@
             text-align: center;
             cursor: pointer;
             background: #222;
-            transition: background 0.3s;
+            transition: background 0.3s, border-radius 0.3s;
+            border-radius: 10px 10px 0 0;
         }
         .tab:hover { background: #333; }
         .active { background: #007bff; }
@@ -63,23 +57,24 @@
             color: white;
             width: 100px;
             border-radius: 5px;
+            transition: background 0.3s;
         }
         .btn:hover { background: #0056b3; }
 
-        /* Search bar */
-        #search {
+        /* Search bars */
+        .search-bar {
             padding: 10px;
             width: 80%;
             margin-bottom: 10px;
             background: #333;
             border: 1px solid #444;
             color: white;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
 
-    <!-- Banner -->
     <h1>Ivaansri</h1>
 
     <!-- Tab Navigation -->
@@ -92,17 +87,17 @@
     <!-- Pages Section -->
     <div id="pages" class="content active-content">
         <h2>Pages</h2>
-        <input type="text" id="search" onkeyup="filterPages()" placeholder="Search pages...">
+        <input type="text" id="searchPages" class="search-bar" onkeyup="filterContent('pageList', 'searchPages')" placeholder="Search pages...">
         <div id="pageList">
             <div class="card">
-                <h3>Page 1</h3>
-                <p>Description of Page 1</p>
-                <button class="btn">Go</button>
+                <h3>Hello</h3>
+                <p>Hello guys</p>
+                <button class="btn" onclick="location.href='https://example.com'">Go</button>
             </div>
             <div class="card">
-                <h3>Page 2</h3>
-                <p>Description of Page 2</p>
-                <button class="btn">Go</button>
+                <h3>Hello</h3>
+                <p>Hello guys</p>
+                <button class="btn" onclick="location.href='https://example.com'">Go</button>
             </div>
         </div>
     </div>
@@ -110,10 +105,18 @@
     <!-- Posts Section -->
     <div id="posts" class="content">
         <h2>Latest Posts</h2>
-        <div class="card">
-            <h3>Post Title</h3>
-            <p>Short description of the post.</p>
-            <button class="btn">Full Page</button>
+        <input type="text" id="searchPosts" class="search-bar" onkeyup="filterContent('postList', 'searchPosts')" placeholder="Search posts...">
+        <div id="postList">
+            <div class="card">
+                <h3>Hello</h3>
+                <p>Hello guys</p>
+                <button class="btn" onclick="location.href='https://example.com'">Full Page</button>
+            </div>
+            <div class="card">
+                <h3>Hello</h3>
+                <p>Hello guys</p>
+                <button class="btn" onclick="location.href='https://example.com'">Full Page</button>
+            </div>
         </div>
     </div>
 
@@ -133,9 +136,9 @@
             document.querySelector(`.tab[onclick="showTab('${tab}')"]`).classList.add('active');
         }
 
-        function filterPages() {
-            let input = document.getElementById("search").value.toLowerCase();
-            document.querySelectorAll('.card').forEach(el => {
+        function filterContent(listId, inputId) {
+            let input = document.getElementById(inputId).value.toLowerCase();
+            document.querySelectorAll(`#${listId} .card`).forEach(el => {
                 el.style.display = el.textContent.toLowerCase().includes(input) ? "" : "none";
             });
         }
