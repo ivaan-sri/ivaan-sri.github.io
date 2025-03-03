@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC Chat</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #111; color: white; text-align: center; }
+        #chat-box { width: 90%; max-width: 400px; height: 300px; overflow-y: scroll; border: 1px solid #555; margin: auto; padding: 10px; margin-top: 10px; }
+        #message-input, #code-input { width: 80%; padding: 5px; }
+        button { padding: 5px 10px; cursor: pointer; margin-top: 5px; }
+        select { padding: 5px; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+    <h2>WebRTC Chat</h2>
+    
+    <select id="mode">
+        <option value="send">Send</option>
+        <option value="receive">Receive</option>
+    </select>
+    
+    <div id="send-section">
+        <button onclick="generateOffer()">Generate Code</button>
+        <textarea id="offer-output" readonly placeholder="Generated code will appear here"></textarea>
+        <button onclick="copyCode()">Copy</button>
+    </div>
+
+    <div id="receive-section" style="display: none;">
+        <textarea id="code-input" placeholder="Paste code here"></textarea>
+        <button onclick="acceptCode()">Accept</button>
+    </div>
+
+    <div id="chat-box"></div>
+    <input type="text" id="message-input" placeholder="Type a message...">
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        let peerConnection, dataChannel;
+
+        document.getElementById("mode").addEventListener("change", function() {
+            if (this.value === "send") {
+                document.getElementById("send-section").style.display = "block";
+                document.getElementById("receive-section").style.display = "none";
+            } else {
+                document.getElementById("send-section").style.display = "none";
+                document.getElementById("receive-section").style.display = "block";
+            }
+        });
+
+        async function generateOffer() {
+            peerConnection = new RTCPeerConnection();
+            dataChannel = peerConnection.createDataChannel("chat");
+
+            dataChannel.onmessage = event => {
+                document.getElementById('chat-box').innerHTML += `<p>Peer: ${event.data}</p>`;
+            };
+
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+            document.getElementById("offer-output").value = JSON.stringify(offer);
+        }
+
+        function copyCode() {
+            const offerText = document.getElementById("offer-output");
+            offerText.select();
+            document.execCommand("copy");
+        }
+
+        async function acceptCode() {
+            peerConnection = new RTCPeerConnection();
+            peerConnection.ondatachannel = event => {
+                dataChannel = event.channel;
+                dataChannel.onmessage = event => {
+                    document.getElementById('chat-box').innerHTML += `<p>Peer: ${event.data}</p>`;
+                };
+            };
+
+            const offer = JSON.parse(document.getElementById("code-input").value);
+            await peerConnection.setRemoteDescription(offer);
+            const answer = await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(answer);
+            
+            alert("Connection established! Start chatting.");
+        }
+
+        function sendMessage() {
+            const message = document.getElementById("message-input").value;
+            if (dataChannel && dataChannel.readyState === "open") {
+                dataChannel.send(message);
+                document.getElementById('chat-box').innerHTML += `<p>You: ${message}</p>`;
+                document.getElementById("message-input").value = "";
+            }
+        }
+    </script>
+
+</body>
+</html>
