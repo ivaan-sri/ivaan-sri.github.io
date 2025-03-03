@@ -32,7 +32,7 @@
     <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
 
     <div id="sidebar">
-        <h3>             Files</h3>
+        <h3>         Files</h3>
         <div id="file-list"></div>
         <button onclick="newFile()">+ New File</button>
     </div>
@@ -50,3 +50,82 @@
 
         function updatePreview() {
             document.getElementById('preview').innerHTML = marked.parse(editor.value);
+        }
+
+        function newFile() {
+            const name = prompt("Enter file name:");
+            if (name && !files[name]) {
+                files[name] = "";
+                localStorage.setItem('files', JSON.stringify(files));
+                loadFiles();
+            }
+        }
+
+        function loadFiles() {
+            let list = document.getElementById('file-list');
+            list.innerHTML = "";
+            Object.keys(files).forEach(name => {
+                let div = document.createElement('div');
+                div.className = "file";
+                div.innerHTML = `${name} 
+                    <span class="file-buttons">
+                        <button onclick="renameFile('${name}')">✏</button>
+                        <button onclick="deleteFile('${name}')">🗑</button>
+                    </span>`;
+                div.onclick = (e) => { 
+                    if (!e.target.closest("button")) openFile(name); 
+                };
+                list.appendChild(div);
+            });
+        }
+
+        function openFile(name) {
+            currentFile = name;
+            editor.value = files[name];
+            updatePreview();
+        }
+
+        function saveFile() {
+            if (currentFile) {
+                files[currentFile] = editor.value;
+                localStorage.setItem('files', JSON.stringify(files));
+                alert("File saved!");
+            } else {
+                alert("No file open!");
+            }
+        }
+
+        function renameFile(oldName) {
+            let newName = prompt("Rename file:", oldName);
+            if (newName && newName !== oldName && !files[newName]) {
+                files[newName] = files[oldName];
+                delete files[oldName];
+                localStorage.setItem('files', JSON.stringify(files));
+                loadFiles();
+                if (currentFile === oldName) currentFile = newName;
+            }
+        }
+
+        function deleteFile(name) {
+            if (confirm("Delete file?")) {
+                delete files[name];
+                localStorage.setItem('files', JSON.stringify(files));
+                loadFiles();
+                if (currentFile === name) {
+                    editor.value = "";
+                    currentFile = null;
+                }
+            }
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('hidden');
+            document.getElementById('editor-container').classList.toggle('expanded');
+        }
+
+        loadFiles();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+</body>
+</html>
