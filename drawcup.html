@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DrawCups</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { display: flex; flex-direction: column; align-items: center; background: #222; color: white; }
+        canvas { background: white; cursor: crosshair; touch-action: none; border: 1px solid #ccc; }
+        .toolbar { margin: 10px; display: flex; gap: 10px; }
+        button, select, input { padding: 8px; font-size: 14px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <button onclick="clearBoard()">Clear</button>
+        <label>Color: <input type="color" id="colorPicker" value="#000000"></label>
+        <label>Thickness: <input type="range" id="thickness" min="1" max="10" value="3"></label>
+        
+        <button onclick="downloadCanvas()">Download</button>
+    </div>
+    <canvas id="board"></canvas>
+    <script>
+        const canvas = document.getElementById("board");
+        const ctx = canvas.getContext("2d");
+        function resizeCanvas() {
+            canvas.width = window.innerWidth - 20;
+            canvas.height = window.innerHeight - 100;
+        }
+        resizeCanvas();
+        window.addEventListener("resize", resizeCanvas);
+        let drawing = false, startX = 0, startY = 0;
+        let colorPicker = document.getElementById("colorPicker");
+        let thicknessPicker = document.getElementById("thickness");
+        let shapeSelect = document.getElementById("shapeSelect");
+        function startDraw(e) {
+            drawing = true;
