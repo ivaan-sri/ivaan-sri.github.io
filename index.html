@@ -55,9 +55,10 @@
             cursor: pointer;
             background: #007bff;
             color: white;
-            width: 100px;
+            width: 120px;
             border-radius: 5px;
             transition: background 0.3s;
+            display: inline-block;
         }
         .btn:hover { background: #0056b3; }
 
@@ -74,15 +75,19 @@
     </style>
 </head>
 <body>
-<img href="forked.jpg"></img>
     <h1>Ivaansri</h1>
-<p>Making coolstuff</p>
+    <p>Making cool stuff</p>
+
+    <!-- Social Buttons -->
+    <div>
+        <button class="btn" onclick="location.href='https://github.com/ivaan-sri'">GitHub</button>
+        <button class="btn" onclick="location.href='https://www.youtube.com/@ivaansri1359'">YouTube</button>
+    </div>
 
     <!-- Tab Navigation -->
     <div class="nav">
         <div class="tab active" onclick="showTab('pages')">Pages</div>
         <div class="tab" onclick="showTab('posts')">Posts</div>
-        <div class="tab" onclick="showTab('about')">About</div>
     </div>
 
     <!-- Pages Section -->
@@ -92,7 +97,7 @@
         <div id="pageList">
             <div class="card">
                 <h3>Text editor</h3>
-                <p>Ramdom text editor on the internet</p>
+                <p>Random text editor on the internet</p>
                 <button class="btn" onclick="location.href='https://ivaan-sri.github.io/textedit.html'">Go</button>
             </div>
             <div class="card">
@@ -119,13 +124,6 @@
                 <button class="btn" onclick="location.href='https://example.com'">Full Page</button>
             </div>
         </div>
-    </div>
-
-    <!-- About Section -->
-    <div id="about" class="content">
-        <h2>About</h2>
-        <p>Welcome to my website!</p>
-        <p>Contact: <a href="mailto:ivaansri.contact@gmail.com?subject=website/" style="color: #007bff;">ivaansri.contact@gmail.com</a></p>
     </div>
 
     <script>
